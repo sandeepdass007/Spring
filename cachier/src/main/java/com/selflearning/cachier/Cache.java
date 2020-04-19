@@ -42,4 +42,8 @@ public class Cache {
 	public void setCacheIdentifier(CacheIdentifier cacheIdentifier) {
 		this.cacheIdentifier = cacheIdentifier;
 	}
+	
+	public String getIdentifierId() {
+		return getCacheIdentifier().getId().get();
+	}
 }
