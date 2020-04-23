@@ -2,12 +2,9 @@ package com.selflearning.cachier.manager;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.selflearning.cachier.Cache;
@@ -19,7 +16,7 @@ import com.selflearning.cachier.utility.CachingUtil;
 @Component
 @EnableScheduling
 public class Cachier {
-	private Map<CacheIdentifier, Cache> cachingMap = new HashMap<CacheIdentifier, Cache>();
+	private HashMap<CacheIdentifier, Cache> cachingMap = new HashMap<CacheIdentifier, Cache>();
 	final private Long defaultRefereshInterval = 100000L;
 	
 	public Optional<String> cacheData(Object data) {
@@ -43,24 +40,44 @@ public class Cachier {
 		cache.setCacheIdentifier(cacheIdentifier);
 		cache.setRefreshCache(refreshCache);
 		cache.setRefreshTimeInterval(defaultRefereshInterval);
-		cachingMap.put(cacheIdentifier, cache);
-		return cacheIdentifier.getId();
-	}
-	
-	public Optional<Object> getData(String identifier) {
-		final Optional<Entry<CacheIdentifier, Cache>> queriedData = cachingMap.entrySet().parallelStream().filter(cacheIdentifier -> {
-			if(cacheIdentifier.getKey().getId().get().equalsIgnoreCase(identifier)) {
-				return true;
-			}
-			return false;
-		}).findFirst();
-		if(queriedData.isPresent()) {
-			return Optional.of(queriedData.get().getValue().getData());
+		final Cache newCache = cachingMap.putIfAbsent(cacheIdentifier, cache);
+		if(newCache == null) {
+			return cacheIdentifier.getId();
 		}
+		System.out.println("Cache Already exists against Id: " + cacheIdentifier);
 		return Optional.empty();
 	}
 	
-	@Scheduled(fixedDelay = 5000)
+	public Optional<String> updateCacheData(Object data, String customIdentifier) {
+		final CacheIdentifier cacheIdentifier = new CacheIdentifier(CachingScheme.CUSTOM, customIdentifier);
+		final Cache existingCache = cachingMap.get(cacheIdentifier);
+		if(existingCache == null) {
+			System.out.println("No cache present in the system against Id:" + cacheIdentifier);
+			return Optional.empty();
+		}
+		Cache updatedCache = new Cache();
+		updatedCache.setCachedDateTime(existingCache.getCachedDateTime());
+		updatedCache.setData(data);
+		updatedCache.setCacheIdentifier(cacheIdentifier);
+		updatedCache.setRefreshCache(existingCache.getRefreshCache());
+		updatedCache.setRefreshTimeInterval(existingCache.getRefreshTimeInterval());
+		cachingMap.put(cacheIdentifier, updatedCache);
+		System.out.println("Updated cache against Id: " + cacheIdentifier);
+		return Optional.of(cacheIdentifier.toString());
+	}
+	
+	public Optional<Cache> getData(String identifier) {
+		final CacheIdentifier cacheIdentifier = new CacheIdentifier(CachingScheme.CUSTOM, identifier);
+		final Cache cache = cachingMap.get(cacheIdentifier);
+		if(cache == null) {
+			return Optional.empty();
+		}
+		return Optional.of(cache);
+	}
+	
+	/*
+	 * Needs to cater the cases when cache is updated and old method reference is still in queue of refreshing cache.
+	 * @Scheduled(fixedDelay = 5000)
 	public void refereshCaching() {
 		cachingMap.values().parallelStream().forEach(cache -> {
 			final RefreshCacheInterface refreshCacheMethod = cache.getRefreshCache();
@@ -76,8 +93,8 @@ public class Cachier {
 				}
 				refreshCacheMethod.refreshCache();
 			} else {
-				System.out.println("No referesh scheduler for cache identifier: " + cache.getIdentifierId());
+				System.out.println("No refresh scheduler for cache identifier: " + cache.getIdentifierId());
 			}
 		});
-	}
+	}*/
 }
