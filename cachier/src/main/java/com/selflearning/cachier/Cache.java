@@ -9,6 +9,7 @@ public class Cache {
 
 	private Object data;
 	private Date cachedDateTime;
+	private Long deathTime;
 	private RefreshCacheInterface refreshCache;
 	private Long refreshTimeInterval;
 	private CacheIdentifier cacheIdentifier;
@@ -25,6 +26,12 @@ public class Cache {
 	}
 	public void setCachedDateTime(Date cachedDateTime) {
 		this.cachedDateTime = cachedDateTime;
+	}
+	public Long getDeathTime() {
+		return deathTime;
+	}
+	public void setDeathTime(Long deathTime) {
+		this.deathTime = deathTime;
 	}
 	public RefreshCacheInterface getRefreshCache() {
 		return refreshCache;

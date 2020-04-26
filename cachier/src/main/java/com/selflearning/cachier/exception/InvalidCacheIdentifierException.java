@@ -16,6 +16,11 @@ public class InvalidCacheIdentifierException extends Exception {
 		this.cacheIdentifier = cacheIdentifier;
 	}
 	
+	public InvalidCacheIdentifierException(String cacheIdentifier) {
+		super();
+		this.cacheIdentifier = new CacheIdentifier(cacheIdentifier);
+	}
+	
 	@Override
 	public String toString() {
 		return "Cache Identifier is invalid: " + cacheIdentifier;

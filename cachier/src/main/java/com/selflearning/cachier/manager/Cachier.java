@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.Optional;
 
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import com.selflearning.cachier.Cache;
 import com.selflearning.cachier.CacheIdentifier;
@@ -18,8 +20,9 @@ import com.selflearning.cachier.utility.CachingUtil;
 @Component
 @EnableScheduling
 public class Cachier {
-	private HashMap<CacheIdentifier, Cache> cachingMap = new HashMap<CacheIdentifier, Cache>();
+	private volatile HashMap<CacheIdentifier, Cache> cachingMap = new HashMap<CacheIdentifier, Cache>();
 	final private Long defaultRefereshInterval = 100000L;
+	final private Long defaultDeathWaitTime = 100000L;
 	
 	public Optional<String> cacheData(Object data) {
 		return cacheData(data, CachingScheme.GUID);
@@ -42,12 +45,28 @@ public class Cachier {
 		cache.setCacheIdentifier(cacheIdentifier);
 		cache.setRefreshCache(refreshCache);
 		cache.setRefreshTimeInterval(defaultRefereshInterval);
+		cache.setDeathTime(defaultDeathWaitTime);
 		final Cache newCache = cachingMap.putIfAbsent(cacheIdentifier, cache);
 		if(newCache == null) {
 			return cacheIdentifier.getId();
 		}
 		System.out.println("Cache Already exists against Id: " + cacheIdentifier);
 		return Optional.empty();
+	}
+	
+	public void setDeathTime(CacheIdentifier cacheIdentifier, Long waitingTime) throws InvalidCacheIdentifierException {
+		final Cache cache = cachingMap.get(cacheIdentifier);
+		if(cache == null) {
+			throw new InvalidCacheIdentifierException(cacheIdentifier);
+		}
+		cache.setDeathTime(System.currentTimeMillis() + waitingTime);
+	}
+	
+	public void setDeathTime(String cacheIdentifier, Long waitingTime) throws InvalidCacheIdentifierException {
+		if(!StringUtils.hasText(cacheIdentifier)) {
+			throw new InvalidCacheIdentifierException(cacheIdentifier);
+		}
+		setDeathTime(new CacheIdentifier(cacheIdentifier), waitingTime);
 	}
 	
 	public void addRelationshipAccount(CacheIdentifier cacheIdentifier, RelationshipIdentifier relationshipIdentifier) {
@@ -88,6 +107,19 @@ public class Cachier {
 			return Optional.empty();
 		}
 		return Optional.of(cache);
+	}
+	
+	@Scheduled(fixedDelay = 5000)
+	private void cacheCleaner() {
+		cachingMap.values().removeIf(cache -> {
+			final long currentTimeMillis = System.currentTimeMillis();
+			final Long deathTime = cache.getDeathTime();
+			if(deathTime == null || deathTime.longValue() < currentTimeMillis) {
+				System.out.println("Removing cache with identifier: " + cache.getIdentifierId());
+				return true;
+			}
+			return false;
+		});
 	}
 	
 	/*
