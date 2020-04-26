@@ -10,7 +10,9 @@ import org.springframework.stereotype.Component;
 import com.selflearning.cachier.Cache;
 import com.selflearning.cachier.CacheIdentifier;
 import com.selflearning.cachier.constant.CachingScheme;
+import com.selflearning.cachier.exception.InvalidCacheIdentifierException;
 import com.selflearning.cachier.functional.RefreshCacheInterface;
+import com.selflearning.cachier.relationship.RelationshipIdentifier;
 import com.selflearning.cachier.utility.CachingUtil;
 
 @Component
@@ -46,6 +48,19 @@ public class Cachier {
 		}
 		System.out.println("Cache Already exists against Id: " + cacheIdentifier);
 		return Optional.empty();
+	}
+	
+	public void addRelationshipAccount(CacheIdentifier cacheIdentifier, RelationshipIdentifier relationshipIdentifier) {
+		final Cache cache = cachingMap.get(cacheIdentifier);
+		cache.addRelationshipAccount(relationshipIdentifier);
+	}
+	
+	public RelationshipIdentifier getRelationshipAccount(CacheIdentifier cacheIdentifier) throws InvalidCacheIdentifierException {
+		final Cache cache = cachingMap.get(cacheIdentifier);
+		if(cache == null) {
+			throw new InvalidCacheIdentifierException(cacheIdentifier);
+		}
+		return cache.getRelationshipIdentifier();
 	}
 	
 	public Optional<String> updateCacheData(Object data, String customIdentifier) {

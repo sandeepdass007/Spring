@@ -1,4 +1,4 @@
-package com.selflearning.cachier;
+package com.selflearning.cachier.relationship;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -6,10 +6,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.util.StringUtils;
 
-import com.selflearning.cachier.constant.CachingScheme;
 import com.selflearning.cachier.utility.CachingUtil;
 
-public class CacheIdentifier {
+public class RelationshipIdentifier {
 
 	private String id;
 	
@@ -20,17 +19,8 @@ public class CacheIdentifier {
 		throw new RuntimeException("Invalid Cache Identified");
 	}
 	
-	CacheIdentifier(CachingScheme cachingScheme) {
-		this(cachingScheme, null);
-	}
-	
-	public CacheIdentifier(CachingScheme cachingScheme, String customIdentifier) {
-		super();
-		this.id = CachingUtil.getIdentifier(cachingScheme, customIdentifier);
-	}
-	
-	public CacheIdentifier(String cacheIdentifier) {
-		this(CachingScheme.CUSTOM, cacheIdentifier);
+	public RelationshipIdentifier() {
+		this.id = CachingUtil.getGuid();
 	}
 
 	@Override
@@ -51,7 +41,7 @@ public class CacheIdentifier {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        CacheIdentifier cacheIdentifier = (CacheIdentifier)obj;
+        RelationshipIdentifier cacheIdentifier = (RelationshipIdentifier)obj;
         return cacheIdentifier.id.equals(id);
 	}
 	
