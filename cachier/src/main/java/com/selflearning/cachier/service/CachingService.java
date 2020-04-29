@@ -21,30 +21,30 @@ public class CachingService {
 	@Autowired
 	private Cachier cachier;
 	
-	@PostMapping("/set/string/{data}")
+	@PostMapping("/set/string/{key}/{data}")
 	@ResponseBody
-	private String cacheStringData(@PathVariable(value = "data") String data) {
-		final Optional<String> identifier = cachier.cacheData(String.valueOf(data));
+	private String cacheStringData(@PathVariable(value = "key") String key, @PathVariable(value = "data") String data) {
+		final Optional<String> identifier = cachier.cacheData(key, String.valueOf(data));
 		if(identifier.isPresent()) {
 			return identifier.get();
 		}
 		return "Error while caching data!";
 	}
 	
-	@GetMapping("/get/string/{id}")
+	@GetMapping("/get/string/{id}/{key}")
 	@ResponseBody
-	private Object getCachedStringData(@PathVariable(value = "id") String id) {
+	private Object getCachedStringData(@PathVariable(value = "id") String id, @PathVariable(value = "key") String key) {
 		final Optional<Cache> data = cachier.getData(id);
 		if(data.isPresent()) {
-			return data.get().getData();
+			return data.get().getData(key);
 		}
 		return "No Data Found!";
 	}
 	
 	@PutMapping("/update/string/{id}/{data}")
 	@ResponseBody
-	private boolean updateStringData(@PathVariable(value = "id") String identifier, @PathVariable(value = "data") String data) {
-		final Optional<String> _identifier = cachier.updateCacheData(data, identifier);
+	private boolean updateStringData(@PathVariable(value = "id") String identifier, @PathVariable(value = "key") String key, @PathVariable(value = "data") String data) {
+		final Optional<String> _identifier = cachier.updateCacheData(key, data, identifier);
 		return _identifier.isPresent();
 	}
 }

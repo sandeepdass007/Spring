@@ -24,24 +24,24 @@ public class Cachier {
 	final private Long defaultRefereshInterval = 100000L;
 	final private Long defaultDeathWaitTime = 100000L;
 	
-	public Optional<String> cacheData(Object data) {
-		return cacheData(data, CachingScheme.GUID);
+	public Optional<String> cacheData(String key, Object data) {
+		return cacheData(key, data, CachingScheme.GUID);
 	}
 	
-	public Optional<String> cacheData(Object data, CachingScheme cachingScheme) {
+	public Optional<String> cacheData(String key, Object data, CachingScheme cachingScheme) {
 		final String identifier = CachingUtil.getIdentifier(cachingScheme, null);
-		return cacheData(data, cachingScheme, identifier);
+		return cacheData(key, data, cachingScheme, identifier);
 	}
 	
-	public Optional<String> cacheData(Object data, CachingScheme cachingScheme, String customIdentifier) {
-		return cacheData(data, cachingScheme, customIdentifier, null);
+	public Optional<String> cacheData(String key, Object data, CachingScheme cachingScheme, String customIdentifier) {
+		return cacheData(key, data, cachingScheme, customIdentifier, null);
 	}
 	
-	public Optional<String> cacheData(Object data, CachingScheme cachingScheme, String customIdentifier, RefreshCacheInterface refreshCache) {
+	public Optional<String> cacheData(String key, Object data, CachingScheme cachingScheme, String customIdentifier, RefreshCacheInterface refreshCache) {
 		final CacheIdentifier cacheIdentifier = new CacheIdentifier(cachingScheme, customIdentifier);
 		Cache cache = new Cache();
 		cache.setCachedDateTime(new Date());
-		cache.setData(data);
+		cache.setData(key, data);
 		cache.setCacheIdentifier(cacheIdentifier);
 		cache.setRefreshCache(refreshCache);
 		cache.setRefreshTimeInterval(defaultRefereshInterval);
@@ -82,7 +82,7 @@ public class Cachier {
 		return cache.getRelationshipIdentifier();
 	}
 	
-	public Optional<String> updateCacheData(Object data, String customIdentifier) {
+	public Optional<String> updateCacheData(String key, Object data, String customIdentifier) {
 		final CacheIdentifier cacheIdentifier = new CacheIdentifier(CachingScheme.CUSTOM, customIdentifier);
 		final Cache existingCache = cachingMap.get(cacheIdentifier);
 		if(existingCache == null) {
@@ -91,7 +91,10 @@ public class Cachier {
 		}
 		Cache updatedCache = new Cache();
 		updatedCache.setCachedDateTime(existingCache.getCachedDateTime());
-		updatedCache.setData(data);
+		final Object existingData = updatedCache.getData(key);
+		if(existingData == null) {
+			throw new RuntimeException("Cannot update data as there is no existing for given key: " + key);
+		}
 		updatedCache.setCacheIdentifier(cacheIdentifier);
 		updatedCache.setRefreshCache(existingCache.getRefreshCache());
 		updatedCache.setRefreshTimeInterval(existingCache.getRefreshTimeInterval());

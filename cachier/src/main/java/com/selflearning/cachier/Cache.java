@@ -1,13 +1,14 @@
 package com.selflearning.cachier;
 
 import java.util.Date;
+import java.util.HashMap;
 
 import com.selflearning.cachier.functional.RefreshCacheInterface;
 import com.selflearning.cachier.relationship.RelationshipIdentifier;
 
 public class Cache {
 
-	private Object data;
+	private HashMap<String, Object> data = new HashMap<String, Object>();
 	private Date cachedDateTime;
 	private Long deathTime;
 	private RefreshCacheInterface refreshCache;
@@ -15,11 +16,11 @@ public class Cache {
 	private CacheIdentifier cacheIdentifier;
 	private RelationshipIdentifier relationshipIdentifier;
 	
-	public Object getData() {
-		return data;
+	public Object getData(String key) {
+		return data.get(key);
 	}
-	public void setData(Object data) {
-		this.data = data;
+	public void setData(String key, Object data) {
+		this.data.put(key, data);
 	}
 	public Date getCachedDateTime() {
 		return cachedDateTime;
