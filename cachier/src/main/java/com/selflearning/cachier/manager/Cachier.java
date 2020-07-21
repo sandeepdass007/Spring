@@ -57,7 +57,7 @@ public class Cachier {
 		cachingMap.remove(cacheIdentifier);
 	}
 	
-	public void setDeathTime(CacheIdentifier cacheIdentifier, Long waitingTime) throws InvalidCacheIdentifierException {
+	public void setDeathTime(final CacheIdentifier cacheIdentifier, Long waitingTime) throws InvalidCacheIdentifierException {
 		final Cache cache = cachingMap.get(cacheIdentifier);
 		if(cache == null) {
 			throw new InvalidCacheIdentifierException(cacheIdentifier);
@@ -74,6 +74,10 @@ public class Cachier {
 	
 	public Optional<String> updateCacheData(String key, Object data, String customIdentifier) {
 		final CacheIdentifier cacheIdentifier = new CacheIdentifier(CachingScheme.CUSTOM, customIdentifier);
+		return updateCacheData(key, data, cacheIdentifier);
+	}
+	
+	public Optional<String> updateCacheData(String key, Object data, final CacheIdentifier cacheIdentifier) {
 		final Cache existingCache = cachingMap.get(cacheIdentifier);
 		if(existingCache == null) {
 			System.out.println("No cache present in the system against Id:" + cacheIdentifier);
@@ -93,13 +97,17 @@ public class Cachier {
 		return Optional.of(cacheIdentifier.toString());
 	}
 	
-	public Optional<Cache> getData(String identifier) {
-		final CacheIdentifier cacheIdentifier = new CacheIdentifier(CachingScheme.CUSTOM, identifier);
+	public Optional<Cache> getData(final CacheIdentifier cacheIdentifier) {
 		final Cache cache = cachingMap.get(cacheIdentifier);
 		if(cache == null) {
 			return Optional.empty();
 		}
 		return Optional.of(cache);
+	}
+	
+	public Optional<Cache> getData(String identifier) {
+		final CacheIdentifier cacheIdentifier = new CacheIdentifier(CachingScheme.CUSTOM, identifier);
+		return getData(cacheIdentifier);
 	}
 	
 	@Scheduled(fixedDelay = 5000)
