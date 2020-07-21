@@ -14,7 +14,6 @@ import com.selflearning.cachier.CacheIdentifier;
 import com.selflearning.cachier.constant.CachingScheme;
 import com.selflearning.cachier.exception.InvalidCacheIdentifierException;
 import com.selflearning.cachier.functional.RefreshCacheInterface;
-import com.selflearning.cachier.relationship.RelationshipIdentifier;
 import com.selflearning.cachier.utility.CachingUtil;
 
 @Component
@@ -54,6 +53,10 @@ public class Cachier {
 		return Optional.empty();
 	}
 	
+	public void removeCache(final CacheIdentifier cacheIdentifier) {
+		cachingMap.remove(cacheIdentifier);
+	}
+	
 	public void setDeathTime(CacheIdentifier cacheIdentifier, Long waitingTime) throws InvalidCacheIdentifierException {
 		final Cache cache = cachingMap.get(cacheIdentifier);
 		if(cache == null) {
@@ -67,19 +70,6 @@ public class Cachier {
 			throw new InvalidCacheIdentifierException(cacheIdentifier);
 		}
 		setDeathTime(new CacheIdentifier(cacheIdentifier), waitingTime);
-	}
-	
-	public void addRelationshipAccount(CacheIdentifier cacheIdentifier, RelationshipIdentifier relationshipIdentifier) {
-		final Cache cache = cachingMap.get(cacheIdentifier);
-		cache.addRelationshipAccount(relationshipIdentifier);
-	}
-	
-	public RelationshipIdentifier getRelationshipAccount(CacheIdentifier cacheIdentifier) throws InvalidCacheIdentifierException {
-		final Cache cache = cachingMap.get(cacheIdentifier);
-		if(cache == null) {
-			throw new InvalidCacheIdentifierException(cacheIdentifier);
-		}
-		return cache.getRelationshipIdentifier();
 	}
 	
 	public Optional<String> updateCacheData(String key, Object data, String customIdentifier) {

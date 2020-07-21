@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.HashMap;
 
 import com.selflearning.cachier.functional.RefreshCacheInterface;
-import com.selflearning.cachier.relationship.RelationshipIdentifier;
 
 public class Cache {
 
@@ -14,7 +13,6 @@ public class Cache {
 	private RefreshCacheInterface refreshCache;
 	private Long refreshTimeInterval;
 	private CacheIdentifier cacheIdentifier;
-	private RelationshipIdentifier relationshipIdentifier;
 	
 	public Object getData(String key) {
 		return data.get(key);
@@ -52,17 +50,7 @@ public class Cache {
 	public void setCacheIdentifier(CacheIdentifier cacheIdentifier) {
 		this.cacheIdentifier = cacheIdentifier;
 	}
-	public RelationshipIdentifier getRelationshipIdentifier() {
-		return relationshipIdentifier;
-	}
-	public void setRelationshipIdentifier(RelationshipIdentifier relationshipIdentifier) {
-		this.relationshipIdentifier = relationshipIdentifier;
-	}
 	public String getIdentifierId() {
 		return getCacheIdentifier().getId().get();
-	}
-	
-	public void addRelationshipAccount(RelationshipIdentifier relationshipIdentifier) {
-		setRelationshipIdentifier(relationshipIdentifier);
 	}
 }

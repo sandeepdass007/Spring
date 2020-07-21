@@ -25,9 +25,10 @@ public class CachierApplication implements CommandLineRunner {
 	 */
 	@Override
 	public void run(String... args) throws Exception {
-		final Optional<String> cacheIdentifier = cachier.cacheData("Random Data");
+		final Optional<String> cacheIdentifier = cachier.cacheData("key1", "Random Data");
 		cacheIdentifier.ifPresent(identifier -> {
 			try {
+				System.out.println(cachier.getData(identifier).get().getData("key1"));
 				System.out.println("Setting death time 5secs for identifier: " + identifier);
 				cachier.setDeathTime(identifier, 5000L);
 			} catch (InvalidCacheIdentifierException e) {
