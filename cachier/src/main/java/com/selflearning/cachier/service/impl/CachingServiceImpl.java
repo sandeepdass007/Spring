@@ -22,7 +22,7 @@ public class CachingServiceImpl {
 	}
 	
 	public Object getCachedStringData(String id, String key) {
-		final Optional<Cache> data = cachier.getData(id);
+		final Optional<Cache> data = cachier.getCache(id);
 		if(data.isPresent()) {
 			return data.get().getData(key);
 		}

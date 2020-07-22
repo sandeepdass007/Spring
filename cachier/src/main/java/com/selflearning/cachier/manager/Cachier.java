@@ -97,7 +97,7 @@ public class Cachier {
 		return Optional.of(cacheIdentifier.toString());
 	}
 	
-	public Optional<Cache> getData(final CacheIdentifier cacheIdentifier) {
+	public Optional<Cache> getCache(final CacheIdentifier cacheIdentifier) {
 		final Cache cache = cachingMap.get(cacheIdentifier);
 		if(cache == null) {
 			return Optional.empty();
@@ -105,9 +105,9 @@ public class Cachier {
 		return Optional.of(cache);
 	}
 	
-	public Optional<Cache> getData(String identifier) {
+	public Optional<Cache> getCache(String identifier) {
 		final CacheIdentifier cacheIdentifier = new CacheIdentifier(CachingScheme.CUSTOM, identifier);
-		return getData(cacheIdentifier);
+		return getCache(cacheIdentifier);
 	}
 	
 	@Scheduled(fixedDelay = 5000)
