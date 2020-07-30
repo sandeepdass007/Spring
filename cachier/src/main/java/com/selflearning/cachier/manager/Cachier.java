@@ -44,7 +44,7 @@ public class Cachier {
 		cache.setCacheIdentifier(cacheIdentifier);
 		cache.setRefreshCache(refreshCache);
 		cache.setRefreshTimeInterval(defaultRefereshInterval);
-		cache.setDeathTime(defaultDeathWaitTime);
+		cache.setDeathTime(System.currentTimeMillis() + defaultDeathWaitTime);
 		final Cache newCache = cachingMap.putIfAbsent(cacheIdentifier, cache);
 		if(newCache == null) {
 			return cacheIdentifier.getId();
@@ -54,11 +54,13 @@ public class Cachier {
 	}
 	
 	public void removeCache(final CacheIdentifier cacheIdentifier) {
-		cachingMap.remove(cacheIdentifier);
+		getCache(cacheIdentifier).ifPresent(cache -> {
+			cachingMap.remove(cache.getCacheIdentifier());
+		});
 	}
 	
 	public void setDeathTime(final CacheIdentifier cacheIdentifier, Long waitingTime) throws InvalidCacheIdentifierException {
-		final Cache cache = cachingMap.get(cacheIdentifier);
+		final Cache cache = getCache(cacheIdentifier).get();
 		if(cache == null) {
 			throw new InvalidCacheIdentifierException(cacheIdentifier);
 		}
@@ -72,16 +74,15 @@ public class Cachier {
 		setDeathTime(new CacheIdentifier(cacheIdentifier), waitingTime);
 	}
 	
-	public Optional<String> updateCacheData(String key, Object data, String customIdentifier) {
+	public Optional<String> updateCacheData(String key, Object data, String customIdentifier) throws InvalidCacheIdentifierException {
 		final CacheIdentifier cacheIdentifier = new CacheIdentifier(CachingScheme.CUSTOM, customIdentifier);
 		return updateCacheData(key, data, cacheIdentifier);
 	}
 	
-	public Optional<String> updateCacheData(String key, Object data, final CacheIdentifier cacheIdentifier) {
-		final Cache existingCache = cachingMap.get(cacheIdentifier);
+	public Optional<String> updateCacheData(String key, Object data, final CacheIdentifier cacheIdentifier) throws InvalidCacheIdentifierException {
+		final Cache existingCache = getCache(cacheIdentifier).get();
 		if(existingCache == null) {
-			System.out.println("No cache present in the system against Id:" + cacheIdentifier);
-			return Optional.empty();
+			throw new InvalidCacheIdentifierException(cacheIdentifier);
 		}
 		Cache updatedCache = new Cache();
 		updatedCache.setCachedDateTime(existingCache.getCachedDateTime());
@@ -97,10 +98,24 @@ public class Cachier {
 		return Optional.of(cacheIdentifier.toString());
 	}
 	
+	public boolean addAlias(final CacheIdentifier cacheIdentifier, final CacheIdentifier alias) throws InvalidCacheIdentifierException {
+		final Cache cache = getCache(cacheIdentifier).get();
+		if(cache == null) {
+			throw new InvalidCacheIdentifierException(cacheIdentifier);
+		}
+		final boolean addedToSet = cache.getAliases().add(alias);
+		if(!addedToSet) {
+			System.out.println(String.format("Alias: [%s] already present for cacheId: [%s]", alias, cacheIdentifier));
+		}
+		return true;
+	}
+	
 	public Optional<Cache> getCache(final CacheIdentifier cacheIdentifier) {
 		final Cache cache = cachingMap.get(cacheIdentifier);
 		if(cache == null) {
-			return Optional.empty();
+			return cachingMap.values().parallelStream()
+				.filter(_cache -> _cache.getAliases().contains(cacheIdentifier))
+				.findFirst();
 		}
 		return Optional.of(cache);
 	}

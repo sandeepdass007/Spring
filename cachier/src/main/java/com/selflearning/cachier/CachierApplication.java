@@ -25,7 +25,8 @@ public class CachierApplication implements CommandLineRunner {
 	public void run(String... args) throws Exception {
 		final String cacheIdentifier = (String) cachierFacade.cacheData("key1", "Random Data");
 		if(StringUtils.hasText(cacheIdentifier)) {
-			final String data = cachierFacade.getData(cacheIdentifier, "key1", String.class);
+			cachierFacade.addAlias(cacheIdentifier, "myownkey");
+			final String data = cachierFacade.getData("myownkey", "key1", String.class);
 			System.out.println(data);
 		}
 	}

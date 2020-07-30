@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.selflearning.cachier.exception.InvalidCacheIdentifierException;
 import com.selflearning.cachier.service.impl.CachingServiceImpl;
 
 @Service
@@ -32,7 +33,7 @@ public class CachingService {
 	
 	@PutMapping("/update/string/{id}/{data}")
 	@ResponseBody
-	private boolean updateStringData(@PathVariable(value = "id") String identifier, @PathVariable(value = "key") String key, @PathVariable(value = "data") String data) {
+	private boolean updateStringData(@PathVariable(value = "id") String identifier, @PathVariable(value = "key") String key, @PathVariable(value = "data") String data) throws InvalidCacheIdentifierException {
 		return cachingServiceImpl.updateStringData(identifier, key, data);
 	}
 }

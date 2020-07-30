@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import com.selflearning.cachier.Cache;
 import com.selflearning.cachier.CacheIdentifier;
 import com.selflearning.cachier.constant.CachingScheme;
+import com.selflearning.cachier.exception.InvalidCacheIdentifierException;
 import com.selflearning.cachier.functional.RefreshCacheInterface;
 import com.selflearning.cachier.manager.Cachier;
 import com.selflearning.cachier.utility.CachingUtil;
@@ -47,12 +48,12 @@ public class CachierFacade {
 		return cache.isPresent() && cache.get().getData(key) != null ? classType.cast(cache.get().getData(key)) : null;
 	}
 	
-	public String updateCacheData(String key, Object data, String customIdentifier) {
+	public String updateCacheData(String key, Object data, String customIdentifier) throws InvalidCacheIdentifierException {
 		final CacheIdentifier cacheIdentifier = new CacheIdentifier(CachingScheme.CUSTOM, customIdentifier);
 		return updateCacheData(key, data, cacheIdentifier);
 	}
 	
-	public String updateCacheData(String key, Object data, final CacheIdentifier cacheIdentifier) {
+	public String updateCacheData(String key, Object data, final CacheIdentifier cacheIdentifier) throws InvalidCacheIdentifierException {
 		final Optional<String> identifier = cachier.updateCacheData(key, data, cacheIdentifier);
 		return identifier.isPresent() ? identifier.get() : null;
 	}
@@ -60,5 +61,13 @@ public class CachierFacade {
 	public void removeCache(final String identifier) {
 		final CacheIdentifier cacheIdentifier = new CacheIdentifier(CachingScheme.CUSTOM, identifier);
 		cachier.removeCache(cacheIdentifier);
+	}
+	
+	public boolean addAlias(final CacheIdentifier cacheIdentifier, final CacheIdentifier alias) throws InvalidCacheIdentifierException {
+		return cachier.addAlias(cacheIdentifier, alias);
+	}
+	
+	public boolean addAlias(final String cacheIdentifier, final String alias) throws InvalidCacheIdentifierException {
+		return addAlias(new CacheIdentifier(CachingScheme.CUSTOM, cacheIdentifier), new CacheIdentifier(CachingScheme.CUSTOM, alias));
 	}
 }

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.selflearning.cachier.Cache;
+import com.selflearning.cachier.exception.InvalidCacheIdentifierException;
 import com.selflearning.cachier.manager.Cachier;
 
 @Component
@@ -29,7 +30,7 @@ public class CachingServiceImpl {
 		return "No Data Found!";
 	}
 	
-	public boolean updateStringData(String identifier, String key, String data) {
+	public boolean updateStringData(String identifier, String key, String data) throws InvalidCacheIdentifierException {
 		final Optional<String> _identifier = cachier.updateCacheData(key, data, identifier);
 		return _identifier.isPresent();
 	}

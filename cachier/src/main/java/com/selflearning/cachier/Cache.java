@@ -2,6 +2,7 @@ package com.selflearning.cachier;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import com.selflearning.cachier.functional.RefreshCacheInterface;
 
@@ -13,6 +14,7 @@ public class Cache {
 	private RefreshCacheInterface refreshCache;
 	private Long refreshTimeInterval;
 	private CacheIdentifier cacheIdentifier;
+	private HashSet<CacheIdentifier> aliases = new HashSet<CacheIdentifier>();
 	
 	public Object getData(String key) {
 		return data.get(key);
@@ -52,5 +54,8 @@ public class Cache {
 	}
 	public String getIdentifierId() {
 		return getCacheIdentifier().getId().get();
+	}
+	public HashSet<CacheIdentifier> getAliases() {
+		return aliases;
 	}
 }
